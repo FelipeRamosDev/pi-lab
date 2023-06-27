@@ -1,0 +1,20 @@
+{
+    "name": "pi-lab",
+    "version": "0.1.0",
+    "description": "This is a laboratory to perform some Raspberry Pi experiments.",
+    "main": "app.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+      "type": "git",
+      "url": "git+https://github.com/FelipeRamosDev/pi-lab.git"
+    },
+    "author": "Felipe Ramos",
+    "license": "ISC",
+    "bugs": {
+      "url": "https://github.com/FelipeRamosDev/pi-lab/issues"
+    },
+    "homepage": "https://github.com/FelipeRamosDev/pi-lab#readme"
+}
+  
