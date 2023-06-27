@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/FelipeRamosDev/pi-lab#readme",
   "dependencies": {
+    "axios": "^1.4.0",
+    "nodemon": "^2.0.22",
     "rpi-gpio": "^2.1.7"
   }
 }
