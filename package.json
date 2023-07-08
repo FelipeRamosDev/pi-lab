@@ -5,6 +5,7 @@
   "description": "This is a laboratory to perform some Raspberry Pi experiments.",
   "main": "app.js",
   "scripts": {
+    "start": "sudo node ./app.js",
     "dev": "nodemon ./app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
