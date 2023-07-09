@@ -7,15 +7,20 @@ app.use(express.json());
 app.use(cors());
 
 const motorENA = new Gpio(25, { mode: Gpio.OUTPUT, edge: Gpio.RISING_EDGE });
-const motorIN1 = new Gpio(23, { mode: Gpio.OUTPUT });
-const motorIN2 = new Gpio(24, { mode: Gpio.OUTPUT });
-const motorENB = new Gpio(26, { mode: Gpio.OUTPUT });
-const motorIN3 = new Gpio(5, { mode: Gpio.OUTPUT });
-const motorIN4 = new Gpio(6, { mode: Gpio.OUTPUT });
+const motorIN1 = new Gpio(23, { mode: Gpio.OUTPUT, edge: Gpio.RISING_EDGE });
+const motorIN2 = new Gpio(24, { mode: Gpio.OUTPUT, edge: Gpio.RISING_EDGE });
+const motorENB = new Gpio(26, { mode: Gpio.OUTPUT, edge: Gpio.RISING_EDGE });
+const motorIN3 = new Gpio(5, { mode: Gpio.OUTPUT, edge: Gpio.RISING_EDGE });
+const motorIN4 = new Gpio(6, { mode: Gpio.OUTPUT, edge: Gpio.RISING_EDGE });
 
-let motorDir = 1;
-const maxSpeed = 255;
+let motorDir = 0;
+const maxSpeed = 1000;
+const HZ = 1000;
 
+motorENA.pwmRange(maxSpeed);
+motorENB.pwmRange(maxSpeed);
+motorENA.pwmFrequency(HZ);
+motorENB.pwmFrequency(HZ);
 motorIN1.digitalWrite(motorDir);
 motorIN2.digitalWrite(!motorDir);
 motorIN3.digitalWrite(motorDir);
@@ -23,7 +28,7 @@ motorIN4.digitalWrite(!motorDir);
 
 app.get('/motor/:cmd/:arg', async (req, res) => {
     const { cmd, arg } = Object(req.params);
-    console.log(cmd, arg)
+
     try {
         switch (cmd) {
             case 'power': {
@@ -35,10 +40,11 @@ app.get('/motor/:cmd/:arg', async (req, res) => {
                 break;
             }
         }
-    
-        res.status(200).json({ success: true });
+
+        console.log(cmd, arg)
+        res.status(200).send({ success: true });
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).send(err);
     }
 });
 
