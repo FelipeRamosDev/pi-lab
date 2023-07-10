@@ -1,10 +1,9 @@
 import { Gpio } from 'pigpio';
-import express from 'express';
-import cors from 'cors';
+import { Server } from 'socket.io';
 
-const app = express();
-app.use(express.json());
-app.use(cors());
+const io = new Server({
+   cors: { origin: ['http://localhost:3000', 'http://192.168.15.45:3000', 'http://192.168.30.21:3000'] }
+});
 
 const motorENA = new Gpio(25, { mode: Gpio.OUTPUT, edge: Gpio.RISING_EDGE });
 const motorIN1 = new Gpio(23, { mode: Gpio.OUTPUT, edge: Gpio.RISING_EDGE });
@@ -26,44 +25,46 @@ motorIN2.digitalWrite(!motorDir);
 motorIN3.digitalWrite(motorDir);
 motorIN4.digitalWrite(!motorDir);
 
-app.get('/motor/:cmd/:arg', async (req, res) => {
-    const { cmd, arg } = Object(req.params);
+io.on('connection', (ioServer) => {
+   console.log('Socket conneted at port 5555!', ioServer.id);
 
-    try {
-        switch (cmd) {
-            case 'power': {
-                power(arg);
-                break;
-            }
-            case 'speed': {
-                speed(Number(arg));
-                break;
-            }
-        }
+   ioServer.on('cmd:motor:power', (state) => {
+      try {
+         power(state);
 
-        console.log(cmd, arg)
-        res.status(200).send({ success: true });
-    } catch (err) {
-        res.status(500).send(err);
-    }
+         console.log('[CMD] Motor power:', state);
+         ioServer.emit('cmd:motor:power:response', { success: true, state });
+      } catch (err) {
+         ioServer.emit('cmd:motor:power:response', err);
+      }
+   });
+   ioServer.on('cmd:motor:speed', (speedValue) => {
+      try {
+         speed(speedValue);
+         console.log('[CMD] Motor speed:', speedValue);
+         ioServer.emit('cmd:motor:speed:response', { success: true, currentSpeed: speedValue });
+      } catch (err) {
+         ioServer.emit('cmd:motor:power:response', err);
+      }
+   });
 });
 
-app.listen(80);
+io.listen(5555);
 
 function power(state) {
-    if (state === 'on') {
-        motorENA.pwmWrite(maxSpeed);
-        motorENB.pwmWrite(maxSpeed);
-    } else if (state === 'off') {
-        motorENA.pwmWrite(0);
-        motorENB.pwmWrite(0);
-    }
+   if (state === 'on') {
+      motorENA.pwmWrite(maxSpeed);
+      motorENB.pwmWrite(maxSpeed);
+   } else if (state === 'off') {
+      motorENA.pwmWrite(0);
+      motorENB.pwmWrite(0);
+   }
 }
 
 function speed(value) {
-    if (value > maxSpeed) return;
+   if (value > maxSpeed) return;
 
-    motorENA.pwmWrite(value);
-    motorENB.pwmWrite(value);
+   motorENA.pwmWrite(value);
+   motorENB.pwmWrite(value);
 }
 
